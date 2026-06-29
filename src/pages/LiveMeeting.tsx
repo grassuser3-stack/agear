@@ -169,6 +169,7 @@ export default function LiveMeeting() {
   const [pdpaStep, setPdpaStep] = useState<"clauses" | "email" | "sent">("clauses");
   const [clientEmail, setClientEmail] = useState("");
   const [pdpaConsent, setPdpaConsent] = useState<Set<number>>(new Set([0, 1, 2, 3, 4]));
+  const [pdpaFontSize, setPdpaFontSize] = useState(14);
   const [showISPPopup, setShowISPPopup] = useState(false);
   const [ispFeatures, setIspFeatures] = useState<Set<number>>(new Set());
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
@@ -396,9 +397,10 @@ export default function LiveMeeting() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => { setShowSearch(s => !s); setSearchQuery(""); setTimeout(() => searchInputRef.current?.focus(), 50); }}
-            className={cn("flex items-center gap-2 px-3 py-2 rounded-lg transition-colors", showSearch ? "bg-white/20 text-white" : "hover:bg-white/10 text-blue-100")}
+            className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors text-sm font-medium", showSearch ? "bg-white text-[#1A325A] border-white" : "border-white/30 text-white hover:bg-white/10")}
           >
-            <Search size={16} />
+            <Search size={14} />
+            Search
           </button>
           <button
             onClick={() => setIsRecording(!isRecording)}
@@ -448,12 +450,6 @@ export default function LiveMeeting() {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 hover:bg-red-100 border border-red-300 text-red-700 text-xs font-medium transition-colors disabled:opacity-50"
         >
           ▶️ Compliance Check
-        </button>
-        <button
-          onClick={() => setShowPDPAModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-700 text-xs font-medium transition-colors"
-        >
-          🔒 PDPA Consent
         </button>
       </div>
 
@@ -981,8 +977,24 @@ export default function LiveMeeting() {
           <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             {pdpaStep === "clauses" && (
               <div className="p-6 space-y-4">
-                <h2 className="text-lg font-bold text-[#1A325A]">Recording Consent (PDPA)</h2>
-                <p className="text-sm text-gray-600">Please review and consent to the following clauses:</p>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-[#1A325A]">Recording Consent (PDPA)</h2>
+                    <p className="text-sm text-gray-600 mt-0.5">Please review and consent to the following clauses:</p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className="text-xs text-gray-400 mr-1">Text size</span>
+                    <button
+                      onClick={() => setPdpaFontSize(s => Math.max(11, s - 1))}
+                      className="w-7 h-7 rounded border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-600 text-sm font-bold flex items-center justify-center"
+                    >−</button>
+                    <span className="w-6 text-center text-xs text-gray-500">{pdpaFontSize}</span>
+                    <button
+                      onClick={() => setPdpaFontSize(s => Math.min(22, s + 1))}
+                      className="w-7 h-7 rounded border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-600 text-sm font-bold flex items-center justify-center"
+                    >+</button>
+                  </div>
+                </div>
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {PDPA_CLAUSES.map((clause, idx) => (
                     <label key={idx} className="flex items-start gap-3 cursor-pointer">
@@ -990,9 +1002,9 @@ export default function LiveMeeting() {
                         type="checkbox"
                         checked={pdpaConsent.has(idx)}
                         onChange={() => handlePDPAToggle(idx)}
-                        className="mt-1"
+                        className="mt-1 shrink-0"
                       />
-                      <span className="text-xs text-gray-700">{clause}</span>
+                      <span style={{ fontSize: `${pdpaFontSize}px` }} className="text-gray-700 leading-relaxed">{clause}</span>
                     </label>
                   ))}
                 </div>
