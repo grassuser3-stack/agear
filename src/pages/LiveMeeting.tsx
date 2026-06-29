@@ -34,7 +34,7 @@ import { toast } from "sonner";
 
 interface TranscriptEntry {
   id: string;
-  speaker: "FA" | "Client" | "AI";
+  speaker: "FA" | "Client" | "AI" | "Note";
   text: string;
   timestamp: string;
 }
