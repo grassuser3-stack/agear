@@ -13,6 +13,8 @@ import {
   Edit2,
   Plus,
   X,
+  Shield,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -85,6 +87,11 @@ export default function PreMeeting() {
   const [, navigate] = useLocation();
   const client = getClientById(id);
 
+  const [showPDPAGate, setShowPDPAGate] = useState(false);
+  const [pdpaConsented, setPdpaConsented] = useState(false);
+  const [pdpaStep, setPdpaStep] = useState<"clauses" | "email" | "sent">("clauses");
+  const [pdpaChecked, setPdpaChecked] = useState<Set<number>>(new Set([0, 1, 2, 3, 4]));
+  const [pdpaEmail, setPdpaEmail] = useState("");
   const [agendaItems, setAgendaItems] = useState(DEFAULT_AGENDA_ITEMS);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [tickedItems, setTickedItems] = useState<Set<string>>(() => {
@@ -158,7 +165,33 @@ export default function PreMeeting() {
     setShowAddNew(false);
   };
 
+  const formatAUM = (aum: number) => {
+    if (aum >= 1_000_000) return `S$${(aum / 1_000_000).toFixed(2).replace(/\.?0+$/, "")}M`;
+    if (aum >= 1_000) return `S$${(aum / 1_000).toFixed(0)}K`;
+    return `S$${aum}`;
+  };
+
   const handleStartMeeting = () => {
+    if (!pdpaConsented) {
+      setShowPDPAGate(true);
+      return;
+    }
+    const tickedList = Array.from(tickedItems);
+    navigate(`/meeting/${id}?agenda=${tickedList.join(",")}`);
+  };
+
+  const handlePDPAToggle = (idx: number) => {
+    const next = new Set(pdpaChecked);
+    if (next.has(idx)) next.delete(idx);
+    else next.add(idx);
+    setPdpaChecked(next);
+  };
+
+  const handlePDPAConfirm = () => {
+    setPdpaConsented(true);
+    setShowPDPAGate(false);
+    setPdpaStep("clauses");
+    setPdpaEmail("");
     const tickedList = Array.from(tickedItems);
     navigate(`/meeting/${id}?agenda=${tickedList.join(",")}`);
   };
@@ -435,7 +468,7 @@ export default function PreMeeting() {
               <div className="space-y-3">
                 <div>
                   <p className="text-xs text-gray-500 uppercase tracking-wider">AUM</p>
-                  <p className="text-lg font-bold text-green-600">{client.aum}</p>
+                  <p className="text-lg font-bold text-green-600">{formatAUM(client.aum)}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 uppercase tracking-wider">Policies</p>
@@ -462,6 +495,112 @@ export default function PreMeeting() {
           </div>
         </div>
       </div>
+
+      {/* PDPA Consent Gate — blocks meeting start */}
+      {showPDPAGate && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+
+            {/* Step 1: Clauses */}
+            {pdpaStep === "clauses" && (
+              <div className="p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                    <Shield size={20} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-[#1A325A]">PDPA Consent Required</h2>
+                    <p className="text-xs text-gray-500">Required before starting the meeting</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600">Please review and confirm the following with <strong>{client.name}</strong>:</p>
+                <div className="space-y-3">
+                  {[
+                    "I consent to the recording of this meeting for quality assurance and compliance purposes.",
+                    "I understand the recording will be securely stored and deleted after 30 days.",
+                    "I acknowledge that I can request to pause the recording at any time.",
+                    "I consent to the use of this recording for advisor training and performance review.",
+                    "I have been informed of my rights under the Personal Data Protection Act (PDPA).",
+                  ].map((clause, idx) => (
+                    <label key={idx} className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={pdpaChecked.has(idx)}
+                        onChange={() => handlePDPAToggle(idx)}
+                        className="mt-1 accent-blue-600"
+                      />
+                      <span className="text-xs text-gray-700 leading-relaxed">{clause}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="flex gap-2 pt-4 border-t border-gray-100">
+                  <button
+                    onClick={() => { setShowPDPAGate(false); setPdpaChecked(new Set([0,1,2,3,4])); }}
+                    className="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 font-medium"
+                  >
+                    Go Back
+                  </button>
+                  <button
+                    onClick={() => setPdpaStep("email")}
+                    disabled={pdpaChecked.size < 5}
+                    className="flex-1 px-3 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold disabled:opacity-50"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Email */}
+            {pdpaStep === "email" && (
+              <div className="p-6 space-y-4">
+                <h2 className="text-lg font-bold text-[#1A325A]">Send Consent to Client</h2>
+                <p className="text-sm text-gray-600">Enter {client.name}'s email to send the consent confirmation:</p>
+                <input
+                  type="email"
+                  value={pdpaEmail}
+                  onChange={(e) => setPdpaEmail(e.target.value)}
+                  placeholder="client@example.com"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <div className="flex gap-2 pt-4 border-t border-gray-100">
+                  <button
+                    onClick={() => setPdpaStep("clauses")}
+                    className="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 font-medium"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => setPdpaStep("sent")}
+                    disabled={!pdpaEmail}
+                    className="flex-1 px-3 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold disabled:opacity-50"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Sent confirmation */}
+            {pdpaStep === "sent" && (
+              <div className="p-6 space-y-4 text-center">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+                  <CheckCircle2 size={24} className="text-green-600" />
+                </div>
+                <h2 className="text-lg font-bold text-[#1A325A]">Consent Sent!</h2>
+                <p className="text-sm text-gray-600">The consent document has been sent to <strong>{pdpaEmail}</strong></p>
+                <button
+                  onClick={handlePDPAConfirm}
+                  className="w-full px-3 py-2.5 rounded-xl bg-[#1A325A] hover:bg-[#162d4a] text-white text-sm font-semibold flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 size={15} /> Start Meeting
+                </button>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }

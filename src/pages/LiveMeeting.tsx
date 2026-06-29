@@ -26,6 +26,7 @@ import {
   Edit2,
   GripVertical,
   Lightbulb,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -182,6 +183,9 @@ export default function LiveMeeting() {
   const [aiChatMessages, setAiChatMessages] = useState<Array<{ role: 'user' | 'ai'; text: string }>>([]);
   const [aiChatInput, setAiChatInput] = useState("");
   const [showAIGuide, setShowAIGuide] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [clickedGuide, setClickedGuide] = useState<number | null>(null);
 
   const handleEditAgenda = (item: typeof DEFAULT_AGENDA_ITEMS[0]) => {
@@ -362,13 +366,23 @@ export default function LiveMeeting() {
     );
   }
 
+  const highlightText = (text: string) => {
+    if (!searchQuery.trim()) return <>{text}</>;
+    const escaped = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const parts = text.split(new RegExp(`(${escaped})`, 'gi'));
+    return <>{parts.map((p, i) => p.toLowerCase() === searchQuery.toLowerCase()
+      ? <mark key={i} className="bg-yellow-200 text-yellow-900 rounded px-0.5">{p}</mark>
+      : p
+    )}</>;
+  };
+
   return (
     <div className="h-screen flex flex-col bg-white">
       {/* Header */}
       <div className="bg-[#1A325A] text-white px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate(`/pre-meeting/${id}`)}
             className="flex items-center gap-1 hover:opacity-80 transition-opacity"
           >
             <ChevronLeft size={20} />
@@ -380,6 +394,12 @@ export default function LiveMeeting() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => { setShowSearch(s => !s); setSearchQuery(""); setTimeout(() => searchInputRef.current?.focus(), 50); }}
+            className={cn("flex items-center gap-2 px-3 py-2 rounded-lg transition-colors", showSearch ? "bg-white/20 text-white" : "hover:bg-white/10 text-blue-100")}
+          >
+            <Search size={16} />
+          </button>
           <button
             onClick={() => setIsRecording(!isRecording)}
             className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
@@ -441,6 +461,29 @@ export default function LiveMeeting() {
       <div className="flex-1 flex overflow-hidden">
         {/* Transcript section (60%) */}
         <div className="flex-1 flex flex-col bg-white border-r border-gray-200">
+          {/* Search bar */}
+          {showSearch && (
+            <div className="px-4 py-2 border-b border-gray-100 bg-gray-50 flex items-center gap-2 slide-down">
+              <Search size={14} className="text-gray-400 shrink-0" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search transcript…"
+                className="flex-1 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none"
+              />
+              {searchQuery && (
+                <span className="text-xs text-gray-400 shrink-0">
+                  {transcript.filter(e => e.text.toLowerCase().includes(searchQuery.toLowerCase())).length} result(s)
+                </span>
+              )}
+              <button onClick={() => { setShowSearch(false); setSearchQuery(""); }} className="text-gray-400 hover:text-gray-600">
+                <X size={14} />
+              </button>
+            </div>
+          )}
+
           {/* Transcript area */}
           <div
             ref={transcriptRef}
@@ -451,9 +494,19 @@ export default function LiveMeeting() {
                 <p className="text-sm">Transcript will appear here when recording starts</p>
               </div>
             ) : (
-              transcript.map((entry) => (
-                <div key={entry.id} className={cn("flex gap-3", entry.speaker === "AI" && "flex-col")}>
-                  {entry.speaker === "AI" ? (
+              transcript.map((entry) => {
+                const dimmed = searchQuery.trim() && !entry.text.toLowerCase().includes(searchQuery.toLowerCase());
+                return (
+                <div key={entry.id} className={cn("flex gap-3 transition-opacity", (entry.speaker === "AI" || entry.speaker === "Note") && "flex-col", dimmed && "opacity-25")}>
+                  {entry.speaker === "Note" ? (
+                    <div className="bg-amber-50 border border-amber-300 rounded-xl p-3 w-full">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="text-[10px] font-bold tracking-widest text-amber-700 bg-amber-200 px-2 py-0.5 rounded-full uppercase">Note</span>
+                        <span className="text-xs text-amber-500">{entry.timestamp}</span>
+                      </div>
+                      <p className="text-sm text-amber-900 whitespace-pre-wrap leading-relaxed">{highlightText(entry.text)}</p>
+                    </div>
+                  ) : entry.speaker === "AI" ? (
                     <div className="bg-purple-50 border border-purple-300 rounded-xl p-4 w-full">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
@@ -462,7 +515,7 @@ export default function LiveMeeting() {
                         <span className="text-xs font-semibold text-purple-700">AI Assistant</span>
                         <span className="text-xs text-gray-400">{entry.timestamp}</span>
                       </div>
-                      <p className="text-sm text-purple-900 whitespace-pre-wrap leading-relaxed">{entry.text}</p>
+                      <p className="text-sm text-purple-900 whitespace-pre-wrap leading-relaxed">{highlightText(entry.text)}</p>
                     </div>
                   ) : (
                     <>
@@ -479,20 +532,21 @@ export default function LiveMeeting() {
                       <div className="flex-1">
                         <div
                           className={cn(
-                            "rounded-lg px-4 py-2.5 max-w-xs",
+                            "rounded-lg px-4 py-2.5 w-full",
                             entry.speaker === "FA"
                               ? "bg-[#1A325A] text-white"
                               : "bg-gray-200 text-gray-900"
                           )}
                         >
-                          <p className="text-sm">{entry.text}</p>
+                          <p className="text-sm">{highlightText(entry.text)}</p>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">{entry.timestamp}</p>
                       </div>
                     </>
                   )}
                 </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -620,15 +674,25 @@ export default function LiveMeeting() {
                     ref={inputRef}
                     value={faNote}
                     onChange={(e) => setFaNote(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (faNote.trim()) {
+                          setTranscript((prev) => [...prev, { id: `note-${Date.now()}`, speaker: "Note", text: faNote.trim(), timestamp: formatTime(elapsedSeconds) }]);
+                          setFaNote("");
+                        }
+                      }
+                    }}
                     placeholder="Add your notes here... (Press Tab for AI suggestions)"
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
                     rows={3}
                   />
+                  <p className="text-[10px] text-gray-400 mt-1 ml-1">Enter to send · Shift+Enter for new line</p>
                 </div>
                 <button
                   onClick={() => {
                     if (faNote.trim()) {
-                      setTranscript((prev) => [...prev, { id: `note-${Date.now()}`, speaker: "FA", text: faNote, timestamp: formatTime(elapsedSeconds) }]);
+                      setTranscript((prev) => [...prev, { id: `note-${Date.now()}`, speaker: "Note", text: faNote.trim(), timestamp: formatTime(elapsedSeconds) }]);
                       setFaNote("");
                     }
                   }}
