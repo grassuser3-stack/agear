@@ -92,6 +92,7 @@ export default function PreMeeting() {
   const [pdpaStep, setPdpaStep] = useState<"clauses" | "email" | "sent">("clauses");
   const [pdpaChecked, setPdpaChecked] = useState<Set<number>>(new Set([0, 1, 2, 3, 4]));
   const [pdpaEmail, setPdpaEmail] = useState("");
+  const [pdpaFontSize, setPdpaFontSize] = useState(14);
   const [agendaItems, setAgendaItems] = useState(DEFAULT_AGENDA_ITEMS);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [tickedItems, setTickedItems] = useState<Set<string>>(() => {
@@ -504,13 +505,27 @@ export default function PreMeeting() {
             {/* Step 1: Clauses */}
             {pdpaStep === "clauses" && (
               <div className="p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                    <Shield size={20} className="text-blue-600" />
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                      <Shield size={20} className="text-blue-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-[#1A325A]">PDPA Consent Required</h2>
+                      <p className="text-xs text-gray-500">Required before starting the meeting</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-[#1A325A]">PDPA Consent Required</h2>
-                    <p className="text-xs text-gray-500">Required before starting the meeting</p>
+                  <div className="flex items-center gap-1 shrink-0 mt-1">
+                    <span className="text-xs text-gray-400 mr-1">Text</span>
+                    <button
+                      onClick={() => setPdpaFontSize(s => Math.max(11, s - 1))}
+                      className="w-7 h-7 rounded border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-600 text-sm font-bold flex items-center justify-center"
+                    >−</button>
+                    <span className="w-6 text-center text-xs text-gray-500">{pdpaFontSize}</span>
+                    <button
+                      onClick={() => setPdpaFontSize(s => Math.min(22, s + 1))}
+                      className="w-7 h-7 rounded border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-600 text-sm font-bold flex items-center justify-center"
+                    >+</button>
                   </div>
                 </div>
                 <p className="text-sm text-gray-600">Please review and confirm the following with <strong>{client.name}</strong>:</p>
@@ -527,9 +542,9 @@ export default function PreMeeting() {
                         type="checkbox"
                         checked={pdpaChecked.has(idx)}
                         onChange={() => handlePDPAToggle(idx)}
-                        className="mt-1 accent-blue-600"
+                        className="mt-1 accent-blue-600 shrink-0"
                       />
-                      <span className="text-xs text-gray-700 leading-relaxed">{clause}</span>
+                      <span style={{ fontSize: `${pdpaFontSize}px` }} className="text-gray-700 leading-relaxed">{clause}</span>
                     </label>
                   ))}
                 </div>
