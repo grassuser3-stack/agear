@@ -1,0 +1,63 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --primary: #1A325A;
+  --primary-foreground: #EDE9DF;
+  --accent: #964B36;
+  --accent-foreground: #EDE9DF;
+  --secondary: #C9AF80;
+  --secondary-foreground: #1A325A;
+  --radius: 0.65rem;
+  --background: #FAFAF8;
+  --foreground: #1A325A;
+  --card: #FFFFFF;
+  --card-foreground: #1A325A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A325A;
+  --muted: #C9AF80;
+  --muted-foreground: #4B3621;
+  --destructive: #964B36;
+  --border: #D4CEC3;
+  --input: #F5F2ED;
+  --ring: #1A325A;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #FAFAF8;
+    color: #1A325A;
+    margin: 0;
+  }
+}
