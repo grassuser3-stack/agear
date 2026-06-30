@@ -557,6 +557,9 @@ export default function LiveMeeting() {
                   </div>
                   <h2 className="text-lg font-bold text-red-600">⚠️ Compliance Issue Detected</h2>
                 </div>
+                <p className="text-sm text-gray-700">
+                  The advisor implied guaranteed returns on an ILP, which violates MAS disclosure guidelines on investment risk. Review what was said before proceeding.
+                </p>
                 {showComplianceDetail && (
                   <div className="space-y-2">
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs">
