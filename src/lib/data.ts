@@ -462,7 +462,7 @@ export const appointments: Appointment[] = [
     date: "2026-07-03",
     duration: "60 min",
     type: "Portfolio Review + ISP Discussion",
-    location: "Zoom",
+    location: "In person, MBS",
     status: "upcoming",
     isNext: true,
   },
