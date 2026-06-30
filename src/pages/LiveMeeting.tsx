@@ -561,7 +561,7 @@ export default function LiveMeeting() {
                 <p className="text-sm text-gray-700">
                   {showComplianceDetail
                     ? "The advisor assumed that the client's previous ILP ownership meant they could proceed immediately with a new ILP recommendation. Under MAS' enhanced Complex Products Framework, ILPs are classified as complex products and financial institutions must follow the updated assessment and disclosure requirements before proceeding."
-                    : "The advisor assumed prior ILP ownership automatically satisfied the requirements to proceed. Under MAS' enhanced Complex Products Framework, advisers must follow the updated assessment process before recommending or transacting in complex products."}
+                    : "The advisor assumed prior ILP ownership automatically satisfied the requirements to proceed. Under MAS' enhanced Complex Products Framework, ILPs are classified as complex products and financial institutions must follow the updated assessment and disclosure requirements before proceeding."}
                 </p>
                 {showComplianceDetail && (
                   <div className="space-y-2">
