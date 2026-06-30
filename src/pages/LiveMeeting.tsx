@@ -306,6 +306,20 @@ export default function LiveMeeting() {
     }, 1200);
   };
 
+  const continueScenario2 = (startIndex: number) => {
+    let index = startIndex;
+    const interval = setInterval(() => {
+      if (index < SCENARIO_2.length) {
+        const entry = SCENARIO_2[index];
+        setTranscript((prev) => [...prev, entry]);
+        detectProducts(entry.text);
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 1200);
+  };
+
   const runScenario2 = () => {
     if (scenario2Done) return;
     setScenario2Done(true);
@@ -314,7 +328,7 @@ export default function LiveMeeting() {
 
     let index = 0;
     const interval = setInterval(() => {
-      if (index < SCENARIO_2.length) {
+      if (index < 2) {
         const entry = SCENARIO_2[index];
         setTranscript((prev) => [...prev, entry]);
         detectProducts(entry.text);
@@ -584,6 +598,7 @@ export default function LiveMeeting() {
                     onClick={() => {
                       setComplianceUnderstood(true);
                       setComplianceAlert(false);
+                      continueScenario2(2);
                     }}
                     className="flex-1 px-3 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
                   >
