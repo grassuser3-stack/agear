@@ -63,10 +63,11 @@ const SCENARIO_1: TranscriptEntry[] = [
 ];
 
 const SCENARIO_2: TranscriptEntry[] = [
-  { id: "s2-1", speaker: "Client", text: "So what kind of returns can I expect from this ILP?", timestamp: "05:30" },
-  { id: "s2-2", speaker: "FA", text: "Based on historical performance, you can expect around 8% annual returns from this ILP.", timestamp: "05:48" },
-  { id: "s2-3", speaker: "Client", text: "So... it's guaranteed?", timestamp: "06:05" },
-  { id: "s2-4", speaker: "FA", text: "Yes, it's quite safe.", timestamp: "06:15" },
+  { id: "s2-1", speaker: "FA", text: "I understand you're looking to build a fund for your children's education. Have you invested before?", timestamp: "05:30" },
+  { id: "s2-2", speaker: "Client", text: "Yes, I bought an ILP about ten years ago. It matured last year, and I haven't invested since.", timestamp: "05:48" },
+  { id: "s2-3", speaker: "FA", text: "Great, since you've owned an ILP before, we can proceed with another one.", timestamp: "06:05" },
+  { id: "s2-4", speaker: "Client", text: "Do I need to do anything else?", timestamp: "06:18" },
+  { id: "s2-5", speaker: "FA", text: "No, your previous experience should be sufficient. Let's look at the premium and fund options.", timestamp: "06:32" },
 ];
 
 const SCENARIO_3: TranscriptEntry[] = [
@@ -306,20 +307,6 @@ export default function LiveMeeting() {
     }, 1200);
   };
 
-  const continueScenario2 = (startIndex: number) => {
-    let index = startIndex;
-    const interval = setInterval(() => {
-      if (index < SCENARIO_2.length) {
-        const entry = SCENARIO_2[index];
-        setTranscript((prev) => [...prev, entry]);
-        detectProducts(entry.text);
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 1200);
-  };
-
   const runScenario2 = () => {
     if (scenario2Done) return;
     setScenario2Done(true);
@@ -328,7 +315,7 @@ export default function LiveMeeting() {
 
     let index = 0;
     const interval = setInterval(() => {
-      if (index < 2) {
+      if (index < SCENARIO_2.length) {
         const entry = SCENARIO_2[index];
         setTranscript((prev) => [...prev, entry]);
         detectProducts(entry.text);
@@ -572,21 +559,25 @@ export default function LiveMeeting() {
                   <h2 className="text-lg font-bold text-red-600">⚠️ Compliance Issue Detected</h2>
                 </div>
                 <p className="text-sm text-gray-700">
-                  The advisor implied guaranteed returns on an ILP, which violates MAS disclosure guidelines on investment risk. Review what was said before proceeding.
+                  {showComplianceDetail
+                    ? "The advisor assumed that the client's previous ILP ownership meant they could proceed immediately with a new ILP recommendation. Under MAS' enhanced Complex Products Framework, ILPs are classified as complex products and financial institutions must follow the updated assessment and disclosure requirements before proceeding."
+                    : "The advisor assumed prior ILP ownership automatically satisfied the requirements to proceed. Under MAS' enhanced Complex Products Framework, advisers must follow the updated assessment process before recommending or transacting in complex products."}
                 </p>
                 {showComplianceDetail && (
                   <div className="space-y-2">
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs">
                       <p className="font-semibold text-red-700 mb-1">What was said:</p>
-                      <p className="text-red-800 italic">"You can expect around 8% annual returns."</p>
-                      <p className="text-red-800 italic mt-1">"Yes, it's quite safe."</p>
+                      <p className="text-red-800 italic">"Since you've owned an ILP before, we can skip the assessment and proceed with your application."</p>
                     </div>
                     <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-xs">
                       <p className="font-semibold text-green-700 mb-1">Suggested guidance:</p>
-                      <p className="text-green-900">Returns are not guaranteed and depend on market performance. Explain the investment risks and that the policy value may fluctuate.</p>
+                      <p className="text-green-900">Follow the firm's assessment process under MAS' enhanced Complex Products Framework before recommending or transacting in an ILP. Previous ILP ownership alone should not be treated as automatic confirmation that no further assessment or documentation is required.</p>
                     </div>
                   </div>
                 )}
+                <p className="text-xs text-gray-400 italic">
+                  Reference: MAS, Response to Feedback on Proposed Enhancements to Product Highlights Sheet Requirements and Complex Products Framework (28 May 2025).
+                </p>
                 <div className="flex gap-2 pt-4 border-t border-gray-200">
                   <button
                     onClick={() => setShowComplianceDetail(!showComplianceDetail)}
@@ -598,7 +589,6 @@ export default function LiveMeeting() {
                     onClick={() => {
                       setComplianceUnderstood(true);
                       setComplianceAlert(false);
-                      continueScenario2(2);
                     }}
                     className="flex-1 px-3 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
                   >
