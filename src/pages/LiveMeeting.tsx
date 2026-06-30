@@ -63,9 +63,10 @@ const SCENARIO_1: TranscriptEntry[] = [
 ];
 
 const SCENARIO_2: TranscriptEntry[] = [
-  { id: "s2-1", speaker: "FA", text: "Now, regarding your portfolio — the new MAS regulations that came into effect last month mean we should review your ILP allocation.", timestamp: "05:30" },
-  { id: "s2-2", speaker: "Client", text: "What changed exactly?", timestamp: "05:45" },
-  { id: "s2-3", speaker: "FA", text: "The new rules allow advisors to recommend up to 35% in alternative assets for accredited investors.", timestamp: "06:05" },
+  { id: "s2-1", speaker: "Client", text: "So what kind of returns can I expect from this ILP?", timestamp: "05:30" },
+  { id: "s2-2", speaker: "FA", text: "Based on historical performance, you can expect around 8% annual returns from this ILP.", timestamp: "05:48" },
+  { id: "s2-3", speaker: "Client", text: "So... it's guaranteed?", timestamp: "06:05" },
+  { id: "s2-4", speaker: "FA", text: "Yes, it's quite safe.", timestamp: "06:15" },
 ];
 
 const SCENARIO_3: TranscriptEntry[] = [
@@ -554,20 +555,18 @@ export default function LiveMeeting() {
                   <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
                     <AlertTriangle size={20} className="text-red-600" />
                   </div>
-                  <h2 className="text-lg font-bold text-red-600">⚠️ Regulations Changed!</h2>
+                  <h2 className="text-lg font-bold text-red-600">⚠️ Compliance Issue Detected</h2>
                 </div>
-                <p className="text-sm text-gray-700">
-                  New MAS regulations effective this month. Ensure compliance with updated ILP allocation rules.
-                </p>
                 {showComplianceDetail && (
                   <div className="space-y-2">
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs">
-                      <p className="font-semibold text-red-700 mb-1">What was said (incorrect):</p>
-                      <p className="text-red-800 italic">"…up to 35% in alternative assets…"</p>
+                      <p className="font-semibold text-red-700 mb-1">What was said:</p>
+                      <p className="text-red-800 italic">"You can expect around 8% annual returns."</p>
+                      <p className="text-red-800 italic mt-1">"Yes, it's quite safe."</p>
                     </div>
                     <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-xs">
-                      <p className="font-semibold text-green-700 mb-1">Correct information:</p>
-                      <p className="text-green-900">MAS Notice FAA-N16 (May 2026): Cap is <strong>25%</strong> for accredited investors.</p>
+                      <p className="font-semibold text-green-700 mb-1">Suggested guidance:</p>
+                      <p className="text-green-900">Returns are not guaranteed and depend on market performance. Explain the investment risks and that the policy value may fluctuate.</p>
                     </div>
                   </div>
                 )}
