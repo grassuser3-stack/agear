@@ -1,6 +1,6 @@
 // Focus: AI agenda with expandable talking points, editable items, track ticked items for meeting notes
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import Layout from "@/components/Layout";
 import { getClientById } from "@/lib/data";
@@ -92,6 +92,24 @@ export default function PreMeeting() {
   const [pdpaStep, setPdpaStep] = useState<"clauses" | "email" | "sent">("clauses");
   const [pdpaChecked, setPdpaChecked] = useState<Set<number>>(new Set([0, 1, 2, 3, 4]));
   const [pdpaEmail, setPdpaEmail] = useState("");
+  const pdpaEmailRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (pdpaStep === "email") {
+      const target = "chaselim@gmail.com";
+      setPdpaEmail("");
+      let i = 0;
+      const type = () => {
+        if (i < target.length) {
+          setPdpaEmail(target.slice(0, i + 1));
+          i++;
+          pdpaEmailRef.current = setTimeout(type, 60);
+        }
+      };
+      pdpaEmailRef.current = setTimeout(type, 300);
+      return () => { if (pdpaEmailRef.current) clearTimeout(pdpaEmailRef.current); };
+    }
+  }, [pdpaStep]);
   const [pdpaFontSize, setPdpaFontSize] = useState(14);
   const [agendaItems, setAgendaItems] = useState(DEFAULT_AGENDA_ITEMS);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
