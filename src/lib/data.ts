@@ -96,7 +96,7 @@ export const clients: Client[] = [
     phone: "+65 9123 4567",
     policies: 7,
     aum: 1_250_000,
-    lastMeeting: "2026-07-15",
+    lastMeeting: "2026-06-15",
     nextMeeting: "2026-07-03T10:30:00",
     tags: ["High Value", "Investment", "Insurance"],
     backgroundInfo: {
@@ -164,7 +164,7 @@ export const clients: Client[] = [
     meetingHistory: [
       {
         id: "m1",
-        date: "2026-03-15",
+        date: "2026-06-15",
         duration: "60 min",
         summary:
           "Reviewed existing portfolio. Chase expressed interest in increasing equity exposure. Chase showed curiosity in Integrated Shield Plan for the family. Anne was 2 months old at the time — Chase was sleep-deprived but in good spirits.",
