@@ -96,7 +96,7 @@ export const clients: Client[] = [
     phone: "+65 9123 4567",
     policies: 7,
     aum: 1_250_000,
-    lastMeeting: "2026-03-15",
+    lastMeeting: "2026-07-15",
     nextMeeting: "2026-07-03T10:30:00",
     tags: ["High Value", "Investment", "Insurance"],
     backgroundInfo: {

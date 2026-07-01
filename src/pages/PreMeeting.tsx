@@ -231,7 +231,7 @@ export default function PreMeeting() {
               Pre-Meeting Preparation
             </h1>
             <p className="text-sm text-gray-500">
-              {client.name} · Fri, 3 Jul · 10:30 AM · 60 min
+              {client.name} · 3 Jul 2026 · 10:30 AM · 60 min
             </p>
           </div>
         </div>
@@ -495,7 +495,7 @@ export default function PreMeeting() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 uppercase tracking-wider">Last Met</p>
-                  <p className="text-sm text-gray-700">{client.lastMeeting}</p>
+                  <p className="text-sm text-gray-700">{new Date(client.lastMeeting).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
                 </div>
               </div>
             </div>
